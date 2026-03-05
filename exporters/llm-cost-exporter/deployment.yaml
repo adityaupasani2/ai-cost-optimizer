@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-cost-exporter
+  namespace: monitoring
+  labels:
+    app: llm-cost-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: llm-cost-exporter
+  template:
+    metadata:
+      labels:
+        app: llm-cost-exporter
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9101"
+    spec:
+      containers:
+        - name: llm-cost-exporter
+          image: ghcr.io/yourusername/ai-cost-optimizer/llm-cost-exporter:latest
+          ports:
+            - containerPort: 9101
+          env:
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: llm-api-keys
+                  key: openai-api-key
+                  optional: true
+            - name: ANTHROPIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: llm-api-keys
+                  key: anthropic-api-key
+                  optional: true
+            - name: SCRAPE_INTERVAL
+              value: "60"
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: llm-cost-exporter
+  namespace: monitoring
+  labels:
+    app: llm-cost-exporter
+spec:
+  selector:
+    app: llm-cost-exporter
+  ports:
+    - port: 9101
+      targetPort: 9101
