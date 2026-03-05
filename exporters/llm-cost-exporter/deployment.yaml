@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: llm-cost-exporter
-          image: ghcr.io/yourusername/ai-cost-optimizer/llm-cost-exporter:latest
+          image: ghcr.io/adityaupasani2/ai-cost-optimizer/llm-cost-exporter:latest
           ports:
             - containerPort: 9101
           env:
