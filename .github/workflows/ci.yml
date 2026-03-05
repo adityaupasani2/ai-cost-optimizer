@@ -6,9 +6,15 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+  packages: write
+
 env:
   TF_VERSION: "1.6.0"
   AWS_REGION: "us-east-1"
+
+
 
 jobs:
   # ── Terraform Lint ────────────────────────────────────────────────────────
@@ -21,7 +27,6 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: ${{ env.TF_VERSION }}
 
       - name: Terraform Format Check
         run: terraform fmt -check -recursive terraform/
@@ -147,12 +152,10 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
 
       - name: Update kubeconfig
         run: |
           aws eks update-kubeconfig \
-            --region ${{ env.AWS_REGION }} \
             --name ai-cost-optimizer-dev
 
       - name: Deploy to EKS
